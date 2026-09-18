@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TODO</title>
+<style>
+  :root {
+    --bg: #f5f3ff;
+    --header-a: #7c3aed;
+    --header-b: #a78bfa;
+    --accent: #8b5cf6;
+    --accent-hover: #7c3aed;
+    --card: #ffffff;
+    --tab-active-bg: #ede9fe;
+    --border: #ddd6fe;
+    --text: #1e1b4b;
+    --sub: #8b88a8;
+    --overlay: rgba(30, 27, 75, 0.45);
+    --prio-high: #ffe0e0;
+    --prio-mid: #fff3cd;
+    --prio-low: #e0f0ff;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: "Segoe UI", "Helvetica Neue", Arial, "Hiragino Kaku Gothic ProN", "Yu Gothic", sans-serif;
+    font-size: 16px;
+    -webkit-font-smoothing: antialiased;
+    padding-bottom: 100px;
+  }
+
+  /* ---------- Header ---------- */
+  header {
+    background: linear-gradient(120deg, var(--header-a), var(--header-b));
+    color: #fff;
+    padding: 20px 16px;
+    box-shadow: 0 2px 10px rgba(124, 58, 237, 0.25);
+  }
+
+  .header-inner {
+    max-width: 700px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .app-title {
+    font-size: 26px;
+    font-weight: 800;
+    letter-spacing: 4px;
+    margin: 0;
+  }
+
+  .stats {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .stat {
+    background: rgba(255, 255, 255, 0.18);
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    border-radius: 999px;
+    padding: 5px 12px;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    white-space: nowrap;
+  }
+
+  .stat b {
+    font-size: 14px;
+    margin-left: 4px;
+  }
+
+  /* ---------- Tabs ---------- */
+  nav.tabs {
+    max-width: 700px;
+    margin: 0 auto;
+    display: flex;
+    border-bottom: 2px solid var(--border);
+  }
+
+  .tab-btn {
+    flex: 1;
+    background: none;
+    border: none;
+    padding: 14px 0;
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    color: var(--sub);
+    cursor: pointer;
+    border-bottom: 3px solid transparent;
+    margin-bottom: -2px;
+    transition: color .15s, border-color .15s, background .15s;
+  }
+
+  .tab-btn:hover { background: var(--tab-active-bg); }
+
+  .tab-btn.active {
+    color: var(--accent-hover);
+    border-bottom-color: var(--accent);
+    background: var(--tab-active-bg);
+  }
+
+  /* ---------- Lists ---------- */
+  main {
+    max-width: 700px;
+    margin: 0 auto;
+    padding: 16px;
+  }
+
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  .empty {
+    text-align: center;
+    color: var(--sub);
+    padding: 48px 0;
+    font-size: 15px;
+    letter-spacing: 1px;
+  }
+
+  /* ---------- Card ---------- */
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 14px 16px;
+    margin-bottom: 12px;
+    box-shadow: 0 2px 6px rgba(124, 58, 237, 0.06);
+    transition: box-shadow .15s, transform .15s;
+  }
+
+  .card:hover { box-shadow: 0 4px 14px rgba(124, 58, 237, 0.14); }
+
+  .card.priority-high { background: var(--prio-high); }
+  .card.priority-mid  { background: var(--prio-mid); }
+  .card.priority-low  { background: var(--prio-low); }
+
+  .card-top {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .card-check {
+    width: 20px;
+    height: 20px;
+    margin-top: 2px;
+    accent-color: var(--accent);
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+
+  .badge {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 1px;
+    padding: 2px 8px;
+    border-radius: 999px;
+    color: #fff;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  .badge.high { background: #e05a5a; }
+  .badge.mid  { background: #d9a520; }
+  .badge.low  { background: #4f8fd0; }
+
+  .card-text {
+    flex: 1;
+    word-break: break-word;
+    line-height: 1.4;
+    font-size: 15px;
+  }
+
+  .card.checked .card-text {
+    text-decoration: line-through;
+    color: var(--sub);
+  }
+
+  .dates {
+    margin: 10px 0 0 30px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .date-line {
+    font-size: 12px;
+    color: var(--sub);
+    letter-spacing: .5px;
+  }
+
+  .date-line .lbl {
+    display: inline-block;
+    width: 44px;
+    font-weight: 800;
+    letter-spacing: 1px;
+    color: var(--accent);
+  }
+
+  .card-actions {
+    margin-top: 12px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+  }
+
+  .btn {
+    border: none;
+    border-radius: 10px;
+    padding: 8px 14px;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    min-height: 40px;
+    transition: background .15s, transform .1s;
+  }
+
+  .btn:active { transform: scale(0.96); }
+
+  .btn-done {
+    background: var(--accent);
+    color: #fff;
+  }
+  .btn-done:hover { background: var(--accent-hover); }
+
+  .btn-restore {
+    background: #f0eefc;
+    color: var(--accent-hover);
+    border: 1px solid var(--border);
+  }
+  .btn-restore:hover { background: #e5e0f9; }
+
+  .btn-del {
+    background: rgba(255, 255, 255, 0.7);
+    border: 1px solid var(--border);
+    color: #b23b3b;
+    font-size: 16px;
+    line-height: 1;
+    padding: 8px 12px;
+  }
+  .btn-del:hover { background: #ffe9e9; }
+
+  /* ---------- FAB ---------- */
+  .fab {
+    position: fixed;
+    right: 20px;
+    bottom: 20px;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    border: none;
+    background: var(--accent);
+    color: #fff;
+    font-size: 32px;
+    line-height: 1;
+    cursor: pointer;
+    box-shadow: 0 6px 18px rgba(124, 58, 237, 0.45);
+    transition: transform .15s, background .15s;
+    z-index: 20;
+  }
+
+  .fab:hover { background: var(--accent-hover); transform: scale(1.08); }
+  .fab:active { transform: scale(0.96); }
+
+  /* ---------- Modal ---------- */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: var(--overlay);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    z-index: 30;
+  }
+
+  .modal-overlay.open { display: flex; }
+
+  .modal {
+    background: #fff;
+    border-radius: 18px;
+    width: 90%;
+    max-width: 420px;
+    padding: 22px;
+    box-shadow: 0 20px 50px rgba(30, 27, 75, 0.3);
+    animation: pop .16s ease-out;
+  }
+
+  @keyframes pop {
+    from { transform: scale(0.94); opacity: 0; }
+    to   { transform: scale(1); opacity: 1; }
+  }
+
+  .modal-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+  }
+
+  .modal-head h2 {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 800;
+    letter-spacing: 1px;
+  }
+
+  .modal-close {
+    background: none;
+    border: none;
+    font-size: 24px;
+    color: var(--sub);
+    cursor: pointer;
+    line-height: 1;
+    padding: 4px 8px;
+  }
+  .modal-close:hover { color: var(--text); }
+
+  .field { margin-bottom: 16px; }
+
+  .field label {
+    display: block;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 1px;
+    color: var(--sub);
+    margin-bottom: 6px;
+  }
+
+  #task-input, #priority-select {
+    width: 100%;
+    border: 2px solid var(--border);
+    border-radius: 10px;
+    padding: 12px;
+    font-size: 15px;
+    font-family: inherit;
+    color: var(--text);
+    outline: none;
+    transition: border-color .15s;
+  }
+
+  #task-input:focus, #priority-select:focus { border-color: var(--accent); }
+
+  .required { color: #d9534f; }
+
+  .error-msg {
+    display: none;
+    margin: 6px 0 0;
+    font-size: 12px;
+    font-weight: 700;
+    color: #d9534f;
+    letter-spacing: .5px;
+  }
+
+  .field.invalid .error-msg { display: block; }
+  .field.invalid #task-input {
+    border-color: #d9534f;
+    background: #fff5f5;
+  }
+  .field.invalid #task-input::placeholder { color: #e59b9b; }
+
+  .modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 8px;
+  }
+
+  .btn-cancel {
+    background: #f0eefc;
+    color: var(--accent-hover);
+  }
+  .btn-cancel:hover { background: #e5e0f9; }
+
+  .btn-add {
+    background: var(--accent);
+    color: #fff;
+    padding: 8px 22px;
+  }
+  .btn-add:hover { background: var(--accent-hover); }
+
+  @media (max-width: 480px) {
+    .app-title { font-size: 22px; }
+    .header-inner { justify-content: center; }
+    .stats { justify-content: center; width: 100%; }
+  }
+</style>
+</head>
+<body>
+  <header>
+    <div class="header-inner">
+      <h1 class="app-title">TODO</h1>
+      <div class="stats">
+        <span class="stat">TOTAL<b id="stat-total">0</b></span>
+        <span class="stat">TODO<b id="stat-todo">0</b></span>
+        <span class="stat">DONE<b id="stat-done">0</b></span>
+      </div>
+    </div>
+  </header>
+
+  <nav class="tabs">
+    <button class="tab-btn active" data-tab="todo">To Do</button>
+    <button class="tab-btn" data-tab="done">Done</button>
+  </nav>
+
+  <main>
+    <section id="todo-tab" class="tab-panel active"></section>
+    <section id="done-tab" class="tab-panel"></section>
+  </main>
+
+  <button class="fab" id="fab" aria-label="Add task">+</button>
+
+  <div class="modal-overlay" id="modal">
+    <div class="modal" role="dialog" aria-modal="true" aria-label="New Task">
+      <div class="modal-head">
+        <h2>New Task</h2>
+        <button class="modal-close" id="modal-close" aria-label="Close">&times;</button>
+      </div>
+      <div class="field" id="task-field">
+        <label for="task-input">Task <span class="required">*</span></label>
+        <input type="text" id="task-input" placeholder="What needs to be done?" autocomplete="off" aria-describedby="task-error">
+        <p class="error-msg" id="task-error">Task is required</p>
+      </div>
+      <div class="field">
+        <label for="priority-select">Priority</label>
+        <select id="priority-select">
+          <option value="">None</option>
+          <option value="high">High</option>
+          <option value="mid">Mid</option>
+          <option value="low">Low</option>
+        </select>
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-cancel" id="btn-cancel">Cancel</button>
+        <button class="btn btn-add" id="btn-add">Add</button>
+      </div>
+    </div>
+  </div>
+
+<script>
+  const STORAGE_KEY = "todo-app-items";
+  const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+
+  let items = [];
+  let currentTab = "todo";
+
+  // ---------- Storage ----------
+  function loadItems() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      items = raw ? JSON.parse(raw) : [];
+      if (!Array.isArray(items)) items = [];
+    } catch (e) {
+      items = [];
+    }
+  }
+
+  function saveItems() {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
+  }
+
+  // ---------- Helpers ----------
+  function todayISO() {
+    const d = new Date();
+    const m = String(d.getMonth() + 1).padStart(2, "0");
+    const day = String(d.getDate()).padStart(2, "0");
+    return d.getFullYear() + "-" + m + "-" + day;
+  }
+
+  function formatDate(iso) {
+    if (!iso) return "";
+    const parts = iso.split("-");
+    if (parts.length !== 3) return iso;
+    const y = parts[0];
+    const mi = parseInt(parts[1], 10) - 1;
+    const day = parseInt(parts[2], 10);
+    return MONTHS[mi] + " " + day + ", " + y;
+  }
+
+  function escapeHtml(str) {
+    return str.replace(/[&<>"']/g, function (c) {
+      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
+    });
+  }
+
+  // ---------- Actions ----------
+  function addItem() {
+    const input = document.getElementById("task-input");
+    const text = input.value.trim();
+    if (!text) {
+      document.getElementById("task-field").classList.add("invalid");
+      input.focus();
+      return;
+    }
+    const priority = document.getElementById("priority-select").value;
+    items.push({
+      id: Date.now(),
+      text: text,
+      priority: priority,
+      checked: false,
+      status: "todo",
+      createdAt: todayISO(),
+      doneAt: null
+    });
+    saveItems();
+    renderItems();
+    closeModal();
+  }
+
+  function moveItemToDone(id) {
+    const it = items.find(function (x) { return x.id === id; });
+    if (!it) return;
+    it.status = "done";
+    it.checked = true;
+    it.doneAt = todayISO();
+    saveItems();
+    renderItems();
+  }
+
+  function moveItemToTodo(id) {
+    const it = items.find(function (x) { return x.id === id; });
+    if (!it) return;
+    it.status = "todo";
+    it.checked = false;
+    it.doneAt = null;
+    saveItems();
+    renderItems();
+  }
+
+  function deleteItem(id) {
+    items = items.filter(function (x) { return x.id !== id; });
+    saveItems();
+    renderItems();
+  }
+
+  function toggleCheck(id) {
+    const it = items.find(function (x) { return x.id === id; });
+    if (!it) return;
+    it.checked = !it.checked;
+    saveItems();
+    renderItems();
+  }
+
+  // ---------- Render ----------
+  function buildCard(it) {
+    const card = document.createElement("div");
+    card.className = "card";
+    if (it.priority) card.classList.add("priority-" + it.priority);
+    if (it.checked) card.classList.add("checked");
+
+    const badge = it.priority
+      ? '<span class="badge ' + it.priority + '">' + it.priority.toUpperCase() + '</span>'
+      : "";
+
+    let dates = '<div class="date-line"><span class="lbl">CRTD</span>' + formatDate(it.createdAt) + '</div>';
+    if (it.status === "done" && it.doneAt) {
+      dates += '<div class="date-line"><span class="lbl">DONE</span>' + formatDate(it.doneAt) + '</div>';
+    }
+
+    const actionBtn = it.status === "todo"
+      ? '<button class="btn btn-done" data-act="done" data-id="' + it.id + '">&#10003; Done</button>'
+      : '<button class="btn btn-restore" data-act="restore" data-id="' + it.id + '">&#8634; To Do</button>';
+
+    card.innerHTML =
+      '<div class="card-top">' +
+        '<input type="checkbox" class="card-check" data-act="check" data-id="' + it.id + '" ' + (it.checked ? "checked" : "") + '>' +
+        badge +
+        '<div class="card-text">' + escapeHtml(it.text) + '</div>' +
+      '</div>' +
+      '<div class="dates">' + dates + '</div>' +
+      '<div class="card-actions">' +
+        actionBtn +
+        '<button class="btn btn-del" data-act="del" data-id="' + it.id + '" aria-label="Delete">&#128465;</button>' +
+      '</div>';
+
+    return card;
+  }
+
+  function renderItems() {
+    const todoEl = document.getElementById("todo-tab");
+    const doneEl = document.getElementById("done-tab");
+    todoEl.innerHTML = "";
+    doneEl.innerHTML = "";
+
+    const todoItems = items.filter(function (x) { return x.status === "todo"; });
+    const doneItems = items.filter(function (x) { return x.status === "done"; });
+
+    if (todoItems.length === 0) {
+      todoEl.innerHTML = '<div class="empty">No tasks yet</div>';
+    } else {
+      todoItems.forEach(function (it) { todoEl.appendChild(buildCard(it)); });
+    }
+
+    if (doneItems.length === 0) {
+      doneEl.innerHTML = '<div class="empty">Nothing done yet</div>';
+    } else {
+      doneItems.forEach(function (it) { doneEl.appendChild(buildCard(it)); });
+    }
+
+    updateStats();
+  }
+
+  function updateStats() {
+    const total = items.length;
+    const done = items.filter(function (x) { return x.status === "done"; }).length;
+    document.getElementById("stat-total").textContent = total;
+    document.getElementById("stat-done").textContent = done;
+    document.getElementById("stat-todo").textContent = total - done;
+  }
+
+  function switchTab(tab) {
+    currentTab = tab;
+    document.querySelectorAll(".tab-btn").forEach(function (b) {
+      b.classList.toggle("active", b.dataset.tab === tab);
+    });
+    document.getElementById("todo-tab").classList.toggle("active", tab === "todo");
+    document.getElementById("done-tab").classList.toggle("active", tab === "done");
+  }
+
+  // ---------- Modal ----------
+  function openModal() {
+    const input = document.getElementById("task-input");
+    input.value = "";
+    document.getElementById("priority-select").value = "";
+    document.getElementById("task-field").classList.remove("invalid");
+    document.getElementById("modal").classList.add("open");
+    setTimeout(function () { input.focus(); }, 50);
+  }
+
+  function closeModal() {
+    document.getElementById("modal").classList.remove("open");
+  }
+
+  // ---------- Events ----------
+  document.querySelectorAll(".tab-btn").forEach(function (b) {
+    b.addEventListener("click", function () { switchTab(b.dataset.tab); });
+  });
+
+  document.getElementById("fab").addEventListener("click", openModal);
+  document.getElementById("modal-close").addEventListener("click", closeModal);
+  document.getElementById("btn-cancel").addEventListener("click", closeModal);
+  document.getElementById("btn-add").addEventListener("click", addItem);
+
+  document.getElementById("task-input").addEventListener("keydown", function (e) {
+    if (e.key === "Enter") { e.preventDefault(); addItem(); }
+  });
+
+  document.getElementById("task-input").addEventListener("input", function () {
+    if (this.value.trim()) document.getElementById("task-field").classList.remove("invalid");
+  });
+
+  document.getElementById("modal").addEventListener("click", function (e) {
+    if (e.target === this) closeModal();
+  });
+
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape") closeModal();
+  });
+
+  // Delegated list actions
+  document.querySelector("main").addEventListener("click", function (e) {
+    const el = e.target.closest("[data-act]");
+    if (!el) return;
+    const id = Number(el.dataset.id);
+    const act = el.dataset.act;
+    if (act === "done") moveItemToDone(id);
+    else if (act === "restore") moveItemToTodo(id);
+    else if (act === "del") deleteItem(id);
+    else if (act === "check") toggleCheck(id);
+  });
+
+  // ---------- Init ----------
+  loadItems();
+  renderItems();
+</script>
+</body>
+</html>
